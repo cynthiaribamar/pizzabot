@@ -1,41 +1,73 @@
 #pip install aiohttp
+# pip install mysql-connector-python
 
 import telebot
 from telebot import types
-import aiohttp
+# import aiohttp
 # from telebot.async_telebot import AsyncTeleBot
 # import asyncio
+import requests
 
-api_key = "6665864422:AAGgCRdfPMdghuYj62uVuzRA7Cwccru6AAo"
+#db
+import mysql.connector
 
-bot = telebot.TeleBot(api_key)
+db_config = {
+    "user": "root",
+    "password": "admin",
+    "host": "localhost",
+    "port": 33061
+}
+
+mydb = mysql.connector.connect(**db_config)
+
+bot_api_key = "6665864422:AAGgCRdfPMdghuYj62uVuzRA7Cwccru6AAo"
+bot = telebot.TeleBot(bot_api_key)
+
+geocoding_base_url = "https://maps.googleapis.com/maps/api/geocode/json"
+geo_api_key = "AIzaSyDW2XKp1OWuoIPfEzLmiMW79fG9e1jGBuo"
 
 user_choices = {
-    "address": 'Cadastrar meu endereço',
-    "menu": 'Ver cardápio',
-    "order": 'Iniciar pedido'
+    "address": "Cadastrar meu endereço",
+    "menu": "Ver cardápio",
+    "order": "Iniciar pedido"
 }
 
 keyboard_buttons = [
-    types.InlineKeyboardButton(text=user_choices["address"], callback_data="address"),
-    types.InlineKeyboardButton(text=user_choices["menu"], callback_data="menu"),
-    types.InlineKeyboardButton(text=user_choices["order"], callback_data="order", switch_inline_query_current_chat="pqp")
+    types.KeyboardButton(user_choices["address"], request_location=True),
+    types.KeyboardButton(user_choices["menu"]),
+    types.KeyboardButton(user_choices["order"])
 ]
 
-inline_keyboard = types.InlineKeyboardMarkup(row_width=1)
-inline_keyboard.add(*keyboard_buttons)
+user_keyboard = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True)
+user_keyboard.add(*keyboard_buttons)
 
-@bot.message_handler(commands=['help', 'start'])
+# def initial_trigger(msg):
+#     return True
+
+@bot.message_handler(commands=['start'])
 def send_welcome(msg):
-    bot.reply_to(msg, "Olá! Vai um Pizza Botinho? Com ele você pode realizar pedidos facilmente com apenas alguns cliques\n\nSelecione a opção que deseja fazer, caso seja seu primeiro pedido conosco, recomendamos cadastrar seu endereço antes para lembrarmos futuramente :)", reply_markup=inline_keyboard)
+    bot.reply_to(msg, "Olá! Vai um Pizza Botinho? Com ele você pode realizar pedidos facilmente com apenas alguns cliques\n\nSelecione a opção que deseja fazer, caso seja seu primeiro pedido conosco, recomendamos cadastrar seu endereço antes para lembrarmos futuramente :)", reply_markup=user_keyboard)
+    
+@bot.message_handler(content_types=['location', 'text'])
+def reply_main_choices(msg):
+    
+    if msg.location:
 
-# @bot.message_handler(func=lambda msg: True)
-# async def echo_message(msg):
-#     await bot.reply_to(msg, msg.text)
-
-# @bot.callback_query_handler(func=lambda call: True)
-# async def user_callback(call):
-#     chat_id = call.message.id
-
-# asyncio.run(bot.polling())
+        latitude = msg.location.latitude
+        longitude = msg.location.longitude     
+        
+        params = {
+            "latlng": f"{latitude},{longitude}", #TODO: Pesquisar sobre fstrings depois
+            "key": geo_api_key
+        }
+                
+        response = requests.get(geocoding_base_url, params=params)
+        data = response.json()
+        
+        if data["status"] == "OK":
+            address = data["results"][0]["formatted_address"]
+            bot.reply_to(msg, "Seu endereço é: %s" % address)
+        else:
+             bot.reply_to(msg, "error at get address from google api")
+            
 bot.polling()
