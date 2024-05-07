@@ -1,33 +1,23 @@
 #pip install aiohttp
-# pip install mysql-connector-python
+#pip install mysql-connector-python
+#pip install python-dotenv
 
 import telebot
 from telebot import types
-# import aiohttp
-# from telebot.async_telebot import AsyncTeleBot
-# import asyncio
 import requests
+from dotenv import load_dotenv
+import os
+from utils import get_pizza_ilustration
+from pizzas import pizzas
 
-#db
-import mysql.connector
+load_dotenv()
 
-db_config = {
-    "user": "root",
-    "password": "admin",
-    "host": "localhost",
-    "port": 33061
-}
-
-mydb = mysql.connector.connect(**db_config)
-
-bot_api_key = "6665864422:AAGgCRdfPMdghuYj62uVuzRA7Cwccru6AAo"
-bot = telebot.TeleBot(bot_api_key)
+bot = telebot.TeleBot(os.getenv("bot_api_key"))
 
 geocoding_base_url = "https://maps.googleapis.com/maps/api/geocode/json"
-geo_api_key = "AIzaSyDW2XKp1OWuoIPfEzLmiMW79fG9e1jGBuo"
 
 user_choices = {
-    "address": "Cadastrar meu endereço",
+    "address": "Compartilhar endereço de entrega",
     "menu": "Ver cardápio",
     "order": "Iniciar pedido"
 }
@@ -46,7 +36,7 @@ user_keyboard.add(*keyboard_buttons)
 
 @bot.message_handler(commands=['start'])
 def send_welcome(msg):
-    bot.reply_to(msg, "Olá! Vai um Pizza Botinho? Com ele você pode realizar pedidos facilmente com apenas alguns cliques\n\nSelecione a opção que deseja fazer, caso seja seu primeiro pedido conosco, recomendamos cadastrar seu endereço antes para lembrarmos futuramente :)", reply_markup=user_keyboard)
+    bot.reply_to(msg, "Olá! Vai um Pizza Botinho? Aqui o seu pedido é montado com apenas alguns cliques :)\n\nSelecione a opção que deseja fazer", reply_markup=user_keyboard)
     
 @bot.message_handler(content_types=['location', 'text'])
 def reply_main_choices(msg):
@@ -58,7 +48,7 @@ def reply_main_choices(msg):
         
         params = {
             "latlng": f"{latitude},{longitude}", #TODO: Pesquisar sobre fstrings depois
-            "key": geo_api_key
+            "key": os.getenv("geo_api_key")
         }
                 
         response = requests.get(geocoding_base_url, params=params)
@@ -69,5 +59,21 @@ def reply_main_choices(msg):
             bot.reply_to(msg, "Seu endereço é: %s" % address)
         else:
              bot.reply_to(msg, "error at get address from google api")
+             
+    elif msg.text == user_choices["menu"]:
+        bot.reply_to(msg, "Ótimo! Vou lhe passar o cardápio")
+        
+        for pizza in pizzas:
+            
+            sabor = pizza["flavor"]
+            preco = pizza["price"]
+            
+            cover_url = get_pizza_ilustration(sabor)
+            menu_text = f":pizza: **Sabor**: {sabor}\n\n**Preço:** 20"
+            
+            bot.send_message(msg.chat.id, menu_text, parse_mode='MarkdownV2')
+            
+            # with open(cover_url, "rb") as photo:
+            #     bot.send_photo(msg.chat.id, photo, caption=f"Pizza de {sabor}")
             
 bot.polling()
