@@ -21,7 +21,6 @@ geocoding_base_url = "https://maps.googleapis.com/maps/api/geocode/json"
 
 user_choices = {
     "address": "Compartilhar endereço de entrega",
-    "menu": "Ver cardápio",
     "order": "Iniciar pedido",
     "confirm": "Sim",
     "deny": "Não"
@@ -29,7 +28,6 @@ user_choices = {
 
 reply_keyboard_buttons = [
     types.KeyboardButton(user_choices["address"], request_location=True),
-    types.KeyboardButton(user_choices["menu"]),
     types.KeyboardButton(user_choices["order"])
 ]
 
@@ -41,9 +39,9 @@ inline_anwsers = [
 quantity = 0
 
 buy_buttons = [
-    types.InlineKeyboardButton(text="+", callback_data="add"),
+    types.InlineKeyboardButton(text="-", callback_data="add"),
     types.InlineKeyboardButton(text=f"{quantity}", callback_data="qt"),
-    types.InlineKeyboardButton(text="-", callback_data="remove")
+    types.InlineKeyboardButton(text="+", callback_data="remove")
 ]
 
 user_reply_keyboard = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True)
@@ -84,8 +82,8 @@ def reply_main_choices(msg):
         else:
              bot.reply_to(msg, "error at get address from google api") #adicionar opção de inserir manualmente
              
-    elif msg.text == user_choices["menu"]:
-        bot.reply_to(msg, "Ótimo! Vou lhe passar o cardápio")
+    elif msg.text == user_choices["order"]:
+        bot.reply_to(msg, "Ótimo! Vou lhe passar o cardápio, selecione a quantidade que deseja de cada sabor, para fechar o pedido clique no botão que aparecerá ao fim dos itens")
         
         for pizza in pizzas:
             
@@ -93,6 +91,18 @@ def reply_main_choices(msg):
             preco = pizza["price"]
             
             cover = get_pizza_ilustration(sabor)
-            bot.send_photo(msg.chat.id, cover, caption=f"<b>Sabor:</b>  {sabor}\n<b>Preço:</b> R${preco}", parse_mode=ParseMode.HTML, reply_markup=buy_markup)
+            bot.send_photo(msg.chat.id, cover, caption=f"<b>Sabor:</b>  {sabor}\n<b>Preço:</b> R${preco}", parse_mode=ParseMode.HTML, reply_markup=buy_markup)  
             
+    else:
+        bot.reply_to(msg, "Por favor, selecione uma das duas opções")
+        
+@bot.callback_query_handler(func=lambda call:True)
+def handle_callbacks(call):
+        if call.data == "confirm":
+            bot.send_message(call.message.chat.id, "Ótimo! Daqui alguns minutos seu pedido chegará até você nesse endereço ;)")
+        
+        if call.data == "add":
+            quantity = quantity + 1
+        
+        
 bot.polling()
