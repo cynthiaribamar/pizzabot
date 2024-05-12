@@ -1,19 +1,182 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css/">
     <title>Menu pizzaria</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        function setThemeClass() {
+            document.documentElement.className = Telegram.WebApp.colorScheme;
+        }
+
+        Telegram.WebApp.onEvent('themeChanged', setThemeClass);
+        setThemeClass();
+
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+            background-color: var(--tg-theme-secondary-bg-color, #efefef);
+        }
+
+        button {
+            border: none;
+            margin: 0;
+            padding: 0;
+            width: auto;
+            overflow: visible;
+        }
+
+        .menu{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .menu .item {
+            height: 300px;
+            background-color: white;
+            max-width: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            position: relative;
+            text-align: center;
+            flex-basis: 0;
+
+            img {
+                border-radius: 50%;
+                padding: 5px;
+                object-fit: cover;
+                height: 110px;
+                width: 110px;
+                background-color: var(--tg-theme-button-color, #50a8eb);
+                margin-bottom: 8px;
+            }
+
+            button {
+                width: 40px;
+                height: 40px;
+                font-size: 30px;
+                border-radius: 5px;
+            }
+
+            span {
+                background-color: red;
+                padding: 12px;
+                border-radius: 50%;
+                height: 20px;
+                width: 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: absolute;
+                top: 10px;
+                right: 30px;
+            }
+
+        }
+    </style>
 </head>
+
 <body>
-    <section class="menu">
-        <ul class="menuItens">
-            <li class="item">
-                teste github pages
-            </li>
+    <section>
+        <ul class="menu">
+            <!-- <li class="item">
+                <img src="4queijos.jpg" alt=""><br>
+                <b>sabor</b>
+                <b>preço</b><br>
+                <div>
+                    <button>-</button>
+                    <button>+</button>
+                </div>
+                <span>0</span>
+            </li> -->
         </ul>
     </section>
 </body>
+<script>
+
+    const menu = document.querySelector('.menu');
+    let qt = 0;
+
+    const pizzas = [
+        {
+            "flavor": 'Margherita',
+            "price": 20.00,
+            "img": 'assets/margherita.jpg'
+        },
+        {
+            "flavor": 'Pepperoni',
+            "price": 22.00,
+            "img": "assets/pepperoni.jpg"
+        },
+        {
+            "flavor": 'Quatro Queijos',
+            "price": 25.00,
+            "img": 'assets/4queijos.jpg'
+        },
+        {
+            "flavor": 'Calabresa',
+            "price": 23.00,
+            "img": 'assets/calabresa.jpg'
+        },
+        {
+            "flavor": 'Frango com Catupiry',
+            "price": 24.00,
+            "img": 'assets/frango.jpg'
+        },
+        {
+            "flavor": 'Portuguesa',
+            "price": 26.00,
+            "img": 'assets/portuguesa.jpeg'
+        },
+        {
+            "flavor": 'Bacon com Milho',
+            "price": 25.00,
+            "img": 'assets/bacon-milho.jpeg'
+        },
+        {
+            "flavor": 'Chocolate com Morango',
+            "price": 28.00,
+            "img": 'assets/doce.jpeg'
+        }
+    ];
+
+    function loadMenu() {
+        pizzas.forEach(pizza => {
+            const li = document.createElement('li');
+            li.classList.add('item')
+
+            const flavorName = document.createElement('b');
+            flavorName.innerHTML = pizza.flavor;
+
+            const price = document.createElement('b');
+            price.innerHTML = `R$${pizza.price}`;
+
+            const img = document.createElement('img');
+            img.src = pizza.img;
+            img.alt = `Pizza de ${pizza.flavor}`
+            li.appendChild(img);
+            li.appendChild(flavorName);
+            li.appendChild(price);
+            menu.appendChild(li);
+        })
+    }
+    // const li = document.createElement('li');
+
+    window.onload = loadMenu
+
+</script>
+
 </html>

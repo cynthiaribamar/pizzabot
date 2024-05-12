@@ -7,10 +7,10 @@ pizzas = [
         "flavor": 'Pepperoni',
         "price": 22.00
     },
-    # {
-    #     "flavor": 'Quatro Queijos',
-    #     "price": 25.00
-    # },
+    {
+        "flavor": 'Quatro Queijos',
+        "price": 25.00
+    },
     {
         "flavor": 'Calabresa',
         "price": 23.00
@@ -23,10 +23,10 @@ pizzas = [
         "flavor": 'Portuguesa',
         "price": 26.00
     },
-    # {
-    #     "flavor": 'Bacon com Milho',
-    #     "price": 25.00
-    # },
+    {
+        "flavor": 'Bacon com Milho',
+        "price": 25.00
+    },
     {
         "flavor": 'Vegetariana',
         "price": 24.00
