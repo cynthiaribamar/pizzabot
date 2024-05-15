@@ -73,18 +73,7 @@ def reply_main_choices(msg):
         else:
              bot.reply_to(msg, "error at get address from google api") #adicionar opção de inserir manualmente
              
-@bot.message_handler(content_types=['service'])
-def handle_service_message(msg):
-    if msg.content_type == 'service':
-        if msg.json['data']:
-            produtos = msg.json['data']
-            for produto in produtos:
-                nome = produto.get('nome')
-                quantidade = produto.get('quantidade')
-                preco = produto.get('preco')
-                
-                print(produto)
-                # Agora você pode processar esses dados como necessário
+
         
         
         

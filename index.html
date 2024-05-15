@@ -7,7 +7,6 @@
     <title>Menu pizzaria</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-
         :root {
             --primary-color: #1B92D1;
             --accent-color: #C8D9EA;
@@ -263,18 +262,18 @@
 
     window.onload = App;
 
-    function processOrder(){
+    function processOrder() {
 
         const order = [];
         const itens = document.querySelectorAll('.item')
         console.log("rodou a func")
 
-        for(let i = 0; i < itens.length; i++){
+        for (let i = 0; i < itens.length; i++) {
             const nome = itens[i].childNodes[1].innerHTML;
             const preco = itens[i].childNodes[2].innerHTML;
             const quantidade = itens[i].childNodes[4].innerHTML;
 
-            if(quantidade != 0){
+            if (quantidade != 0) {
                 var data = {
                     "pizza": nome,
                     "preco": preco,
@@ -284,8 +283,8 @@
             }
         }
 
-        console.log(order)
-                window.Telegram.WebApp.sendData(order);
+        window.Telegram.WebApp.sendData(order);
+        window.Telegram.WebApp.close();
     }
 
 </script>
