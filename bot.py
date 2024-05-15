@@ -26,7 +26,7 @@ user_choices = {
 
 reply_keyboard_buttons = [
     types.KeyboardButton(user_choices["address"], request_location=True),
-    types.KeyboardButton(user_choices["order"])
+    types.KeyboardButton(user_choices["order"], web_app=types.WebAppInfo("https://cynthiaribamar.github.io/pizzabot/index.html"))
 ]
 
 inline_anwsers = [
@@ -72,7 +72,7 @@ def reply_main_choices(msg):
             pass
         else:
              bot.reply_to(msg, "error at get address from google api") #adicionar opção de inserir manualmente
-             
+
 
         
         
