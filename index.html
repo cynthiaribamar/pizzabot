@@ -9,19 +9,11 @@
     <style>
 
         :root {
-            --primary-color: #84B295;
-            --accent-color: #BB8138;
-            --secondary-color: #ECCF8D;
+            --primary-color: #1B92D1;
+            --accent-color: #C8D9EA;
             --alert-color: #AC2005;
-            --background-color: #FFFFFF;
+            --background-color: #ECF5FB;
             --text-color: #2C1507;
-        }
-
-        @media (prefers-color-scheme: dark){
-            :root {
-                --text-color: #FFFFFF;
-                --background-color: #2C1507;
-            }
         }
 
         * {
@@ -38,12 +30,8 @@
 
         button {
             border: none;
-            margin: 0;
-            padding: 0;
-            width: auto;
-            overflow: visible;
             background-color: var(--accent-color);
-            color: var(--background-color);
+            color: var(--text-color);
         }
 
         .menu-wrap {
@@ -138,10 +126,13 @@
     <section class="menu-wrap">
         <ul class="menu">
         </ul>
-        <button class="close">FECHAR PEDIDO</button>
+        <button class="close" onclick="processOrder()">FECHAR PEDIDO</button>
     </section>
 </body>
 <script>
+
+    const botToken = '6665864422:AAGgCRdfPMdghuYj62uVuzRA7Cwccru6AAo';
+    const bot_base_url =`https://api.telegram.org/bot${botToken}/`;
 
     const menu = document.querySelector('.menu');
     const cart = [];
@@ -233,6 +224,7 @@
 
             let qt = 0;
             const close = document.querySelector('.close')
+            console.log(li.childNodes)
 
             li.addEventListener("click", () => {
                 if (event.target.tagName === 'BUTTON') {
@@ -272,15 +264,32 @@
         });
     };
 
-
     window.onload = App;
 
-    const data = {
-        nome: "cynthia",
-        idade: 20
-    }
+    function processOrder(){
 
-    window.Telegram.WebApp.sendData(data);
+        const order = [];
+        const itens = document.querySelectorAll('.item')
+        console.log("rodou a func")
+
+        for(let i = 0; i < itens.length; i++){
+            const nome = itens[i].childNodes[1].innerHTML;
+            const preco = itens[i].childNodes[2].innerHTML;
+            const quantidade = itens[i].childNodes[4].innerHTML;
+
+            if(quantidade != 0){
+                var data = {
+                    "pizza": nome,
+                    "preco": preco,
+                    "quantidade": quantidade
+                }
+                order.push(data)
+            }
+        }
+
+        console.log(order)
+                window.Telegram.WebApp.sendData(order);
+    }
 
 </script>
 
