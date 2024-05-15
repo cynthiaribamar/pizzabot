@@ -280,11 +280,13 @@
                     "quantidade": quantidade
                 }
                 order.push(data)
+                window.Telegram.WebApp.sendData(order);
+
+            } else {
+                alert("Escolha pelo menos 1 item");
             }
         }
 
-        window.Telegram.WebApp.sendData(order);
-        window.Telegram.WebApp.close();
     }
 
 </script>
