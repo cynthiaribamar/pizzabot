@@ -6,16 +6,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu pizzaria</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        function setThemeClass() {
-            document.documentElement.className = Telegram.WebApp.colorScheme;
+    <style>
+        :root {
+            --background-color: #ffffff;
+            --text-color: #000000;
+            --primary-color: #0088cc;
+            /* Cor principal do Telegram */
+            --secondary-color: #e5e5e5;
+            /* Cor de fundo secundária */
+            --accent-color: #ffcc00;
+            /* Cor de destaque */
+            --button-background: #0088cc;
+            --button-text: #ffffff;
+            --link-color: #0088cc;
+            --border-color: #dddddd;
+            --input-background: #f5f5f5;
+            --input-text: #000000;
         }
 
-        Telegram.WebApp.onEvent('themeChanged', setThemeClass);
-        setThemeClass();
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-color: #1e1e1e;
+                --text-color: #ffffff;
+                --primary-color: #0088cc;
+                /* Cor principal do Telegram */
+                --secondary-color: #2a2a2a;
+                /* Cor de fundo secundária */
+                --accent-color: #ffcc00;
+                /* Cor de destaque */
+                --button-background: #0088cc;
+                --button-text: #ffffff;
+                --link-color: #0088cc;
+                --border-color: #3a3a3a;
+                --input-background: #3a3a3a;
+                --input-text: #ffffff;
+            }
+        }
 
-    </script>
-    <style>
         * {
             margin: 0;
             padding: 0;
@@ -24,7 +51,6 @@
 
         body {
             font-family: sans-serif;
-            background-color: var(--tg-theme-secondary-bg-color, #efefef);
         }
 
         button {
@@ -35,14 +61,23 @@
             overflow: visible;
         }
 
-        .menu{
-            column-count: 2;
-            margin: 0 auto;
+        .menu-wrap{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
-        .menu .item {
-            height: 300px;
-            max-width: 200px;
+        .menu {
+            column-count: 2;
+            margin: 0 auto;
+            margin-bottom: 8px;
+        }
+
+        .item {
+            padding-block: 8px;
+            max-width: 180px;
+            height: 250px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -50,6 +85,10 @@
             font-size: 14px;
             position: relative;
             text-align: center;
+            color: var(--text-color);
+            margin: 8px;
+            border-radius: 8px;
+            line-height: 20px;
 
             img {
                 border-radius: 50%;
@@ -57,15 +96,22 @@
                 object-fit: cover;
                 height: 110px;
                 width: 110px;
-                background-color: var(--tg-theme-button-color, #50a8eb);
+                background-color: var(--primary-color);
                 margin-bottom: 8px;
             }
 
-            button {
-                width: 40px;
-                height: 40px;
-                font-size: 30px;
-                border-radius: 5px;
+            .btn-wrap {
+                margin-top: 8px;
+                width: 85px;
+                display: flex;
+                justify-content: space-between;
+
+                button {
+                    width: 40px;
+                    height: 40px;
+                    font-size: 24px;
+                    border-radius: 5px;
+                }
             }
 
             span {
@@ -78,34 +124,39 @@
                 justify-content: center;
                 align-items: center;
                 position: absolute;
-                top: 10px;
+                top: 15px;
                 right: 30px;
+                color: white;
+                font-size: 18px;
             }
 
+            .hidden {
+                display: none;
+            }
+        }
+
+        .close{
+            background-color: var(--input-background);
+            color: var(--input-text);
+            border-radius: 5px;
+            padding: 8px;
+            font-size: 16px;
+            margin: 0 auto;
         }
     </style>
 </head>
 
 <body>
-    <section>
+    <section class="menu-wrap">
         <ul class="menu">
-            <!-- <li class="item">
-                <img src="4queijos.jpg" alt=""><br>
-                <b>sabor</b>
-                <b>preço</b><br>
-                <div>
-                    <button>-</button>
-                    <button>+</button>
-                </div>
-                <span>0</span>
-            </li> -->
         </ul>
+        <button class="close">Fechar pedido</button>
     </section>
 </body>
 <script>
 
     const menu = document.querySelector('.menu');
-    let qt = 0;
+    const cart = [];
 
     const pizzas = [
         {
@@ -150,7 +201,7 @@
         }
     ];
 
-    function loadMenu() {
+    function App() {
         pizzas.forEach(pizza => {
             const li = document.createElement('li');
             li.classList.add('item')
@@ -163,16 +214,79 @@
 
             const img = document.createElement('img');
             img.src = pizza.img;
-            img.alt = `Pizza de ${pizza.flavor}`
+            img.alt = `Pizza de ${pizza.flavor}`;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.classList.add('item-button');
+            removeBtn.classList.add('remove');
+            removeBtn.innerHTML = '-';
+
+            const addBtn = document.createElement('button');
+            addBtn.classList.add('item-button');
+            addBtn.classList.add('add');
+            addBtn.innerHTML = '+';
+
+            const btnWrap = document.createElement('div');
+            btnWrap.classList.add('btn-wrap');
+
+            btnWrap.appendChild(removeBtn);
+            btnWrap.appendChild(addBtn);
+
+            const quantity = document.createElement('span');
+            quantity.classList.add('qt-info');
+            quantity.classList.add('hidden');
+
             li.appendChild(img);
             li.appendChild(flavorName);
             li.appendChild(price);
+            li.appendChild(btnWrap);
+            li.appendChild(quantity);
             menu.appendChild(li);
-        })
-    }
-    // const li = document.createElement('li');
 
-    window.onload = loadMenu
+            let qt = 0;
+            const close = document.querySelector('.close')
+
+            li.addEventListener("click", () => {
+                if (event.target.tagName === 'BUTTON') {
+                    if (event.target.classList.contains('add')) {
+                        qt += 1;
+                        quantity.classList.remove('hidden');
+                        quantity.innerHTML = qt;
+                        cart.push(pizza.price);
+                    }
+
+                    if (event.target.classList.contains('remove')) {
+                        if (qt === 1) {
+                            quantity.classList.add('hidden');
+                        }
+
+                        if (qt != 0) {
+                            let index = cart.indexOf(pizza.price)
+
+                            if (index !== -1) {
+                                cart.splice(index, 1)
+                            }
+
+                            qt -= 1;
+                            quantity.innerHTML = qt;
+                        }
+                    }
+
+                    let totalOrder = cart.reduce((acumulador, valorAtual) => acumulador + valorAtual, 0)
+
+                    if (totalOrder != 0) {
+                        close.innerHTML = `Fechar pedido R$${totalOrder}`
+                    } else {
+                        close.innerHTML = "Fechar pedido"
+                    }
+                }
+            });
+        });
+    };
+
+
+    window.onload = App;
+
 
 </script>
 
