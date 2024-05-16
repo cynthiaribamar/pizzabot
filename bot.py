@@ -10,6 +10,7 @@ from telebot import types
 import requests
 from dotenv import load_dotenv
 import os
+from json import loads
 
 load_dotenv()
 
@@ -74,6 +75,30 @@ def reply_main_choices(msg):
              bot.reply_to(msg, "error at get address from google api") #adicionar opção de inserir manualmente
 
 
+@bot.message_handler(content_types=['web_app_data'])
+def handle_web_app_data(msg):
+    
+    order = "<b>RESUMO DO PEDIDO</b>\n\n"
+    data = msg.web_app_data.data
+    pedidos = loads(data);
+    # total = sum(pedidos[""])
+    
+    for pedido in pedidos:
+        
+        qtd = pedido["quantidade"]
+        pizza = pedido["pizza"]
+        preco = pedido["preco"]   
+
+        order+= f"{qtd}x {pizza} {preco * qtd}\n"
+        
+    # print(data)
+    # print(type(data))
+    # print(pedidos)
+    # print (type(pedidos))
+    print(order)
+    bot.reply_to(msg, f"{order}", parse_mode=ParseMode.HTML)
+        
+##caption=f"<b>Sabor:</b>  {sabor}\n<b>Preço:</b> R${preco}", parse_mode=ParseMode.HTML
         
         
         
