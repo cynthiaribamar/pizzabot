@@ -184,8 +184,15 @@
             const flavorName = document.createElement('b');
             flavorName.innerHTML = pizza.flavor;
 
+            const brl = document.createElement('b');
+            brl.innerHTML = 'R$'
             const price = document.createElement('b');
-            price.innerHTML = `R$${pizza.price}`;
+            price.innerHTML = pizza.price;
+
+            const priceWrap = document.createElement('div');
+            priceWrap.classList.add('price-wrap')
+            priceWrap.appendChild(brl);
+            priceWrap.appendChild(price);
 
             const img = document.createElement('img');
             img.src = pizza.img;
@@ -213,7 +220,7 @@
 
             li.appendChild(img);
             li.appendChild(flavorName);
-            li.appendChild(price);
+            li.appendChild(priceWrap);
             li.appendChild(btnWrap);
             li.appendChild(quantity);
             menu.appendChild(li);
@@ -252,7 +259,6 @@
 
                     if (totalOrder != 0) {
                         close.innerHTML = `FECHAR PEDIDO R$${totalOrder}`
-                        order.push(totalOrder)
                     } else {
                         close.innerHTML = "FECHAR PEDIDO"
                     }
@@ -271,7 +277,7 @@
 
         for (let i = 0; i < itens.length; i++) {
             const nome = itens[i].childNodes[1].innerHTML;
-            const preco = itens[i].childNodes[2].innerHTML;
+            const preco = itens[i].childNodes[2].childNodes[1].innerHTML;
             const quantidade = itens[i].childNodes[4].innerHTML;
 
             if (quantidade != 0) {

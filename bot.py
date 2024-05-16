@@ -1,5 +1,4 @@
 #pip install aiohttp
-#pip install mysql-connector-python
 #pip install python-dotenv
 #pip install python-telegram
 # pip install "python_telegram_bot==12.4.2"
@@ -35,14 +34,14 @@ inline_anwsers = [
     types.InlineKeyboardButton(text=user_choices["deny"], callback_data="deny")
 ]
 
-quantity = 0
-
-
 user_reply_keyboard = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True)
 user_reply_keyboard.add(*reply_keyboard_buttons)
 
 inline_replies = types.InlineKeyboardMarkup(row_width=2)
 inline_replies.add(*inline_anwsers)
+
+
+    
 
 # def initial_trigger(msg):
 #     return True
@@ -72,7 +71,7 @@ def reply_main_choices(msg):
             bot.reply_to(msg, "Confirma o endereço: %s?" % address, reply_markup=inline_replies) #TODO: tratar callbacks em uma func separada
             pass
         else:
-             bot.reply_to(msg, "error at get address from google api") #adicionar opção de inserir manualmente
+             bot.reply_to(msg, "Hmm peço desculpas, ocorreu um erro ao buscar o seu endereço.") #adicionar opção de inserir manualmente
 
 
 @bot.message_handler(content_types=['web_app_data'])
@@ -89,14 +88,14 @@ def handle_web_app_data(msg):
         pizza = pedido["pizza"]
         preco = pedido["preco"]   
 
-        order+= f"{qtd}x {pizza} {preco * qtd}\n"
+        order+= f"{qtd}x {pizza} {qtd}\n"
         
     # print(data)
     # print(type(data))
     # print(pedidos)
     # print (type(pedidos))
-    print(order)
-    bot.reply_to(msg, f"{order}", parse_mode=ParseMode.HTML)
+    print(data)
+    # bot.reply_to(msg, f"{order}", parse_mode=ParseMode.HTML)
         
 ##caption=f"<b>Sabor:</b>  {sabor}\n<b>Preço:</b> R${preco}", parse_mode=ParseMode.HTML
         
