@@ -1,7 +1,4 @@
-#pip install aiohttp
 #pip install python-dotenv
-#pip install python-telegram
-# pip install "python_telegram_bot==12.4.2"
 
 from telegram import ParseMode
 import telebot
@@ -20,8 +17,6 @@ geocoding_base_url = "https://maps.googleapis.com/maps/api/geocode/json"
 user_choices = {
     "address": "Compartilhar endereço de entrega",
     "order": "Iniciar pedido",
-    "confirm": "Sim",
-    "deny": "Não"
 }
 
 reply_keyboard_buttons = [
@@ -29,29 +24,46 @@ reply_keyboard_buttons = [
     types.KeyboardButton(user_choices["order"], web_app=types.WebAppInfo("https://cynthiaribamar.github.io/pizzabot/index.html"))
 ]
 
-inline_anwsers = [
-    types.InlineKeyboardButton(text=user_choices["confirm"], callback_data="confirm"),
-    types.InlineKeyboardButton(text=user_choices["deny"], callback_data="deny")
-]
+markup = types.ForceReply(selective=False)
 
-user_reply_keyboard = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True)
-user_reply_keyboard.add(*reply_keyboard_buttons)
-
-inline_replies = types.InlineKeyboardMarkup(row_width=2)
-inline_replies.add(*inline_anwsers)
-
-
-    
+def dynamic_keyboard(btn):
+    user_reply = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True)
+    user_reply.add(btn)
+    return user_reply
 
 # def initial_trigger(msg):
 #     return True
 
 @bot.message_handler(commands=['start'])
 def send_welcome(msg):
-    bot.reply_to(msg, "Olá! Vai um Pizza Botinho? Aqui o seu pedido é montado com apenas alguns cliques :)\n\nSelecione uma das opções abaixo", reply_markup=user_reply_keyboard)
+    dynamic_keyboard('welcome')
+    bot.reply_to(msg, f"Olá! Vai um Pizza Botinho? Aqui o seu pedido é montado com apenas alguns cliques :)\n\nClique em <b>{user_choices['order']}</b> para acessar nosso cardápio!", reply_markup=dynamic_keyboard(reply_keyboard_buttons[1]), parse_mode=ParseMode.HTML)
+
+@bot.message_handler(content_types=['web_app_data'])
+def handle_web_app_data(msg):
     
+    order = "<b>RESUMO DO PEDIDO</b>\n\n"
+    data = msg.web_app_data.data
+    pedidos = loads(data);
+    total = [];
+    
+    for pedido in pedidos:
+        
+        qtd = int(pedido["quantidade"])
+        pizza = pedido["pizza"]
+        preco = int(pedido["preco"]) 
+        final_value = (preco * qtd)
+        total.append(final_value)
+
+        order+= f"## {qtd}x     {pizza} R${qtd * preco}\n"
+        
+    bot.reply_to(msg, f"{order}\n\n<b>TOTAL DO PEDIDO: R${sum(total)}</b>", parse_mode=ParseMode.HTML)
+    
+    dynamic_keyboard('address')
+    bot.send_message(msg.chat.id, f"Ótimo, estamos com o seu pedido! Agora vou pedir para que nos informe o endereço de entrega, basta clicar em <b>{user_choices['address']}</b>", reply_markup=dynamic_keyboard(reply_keyboard_buttons[0]), parse_mode=ParseMode.HTML)
+
 @bot.message_handler(content_types=['location', 'text'])
-def reply_main_choices(msg):
+def get_delivery_address(msg):
     
     if msg.location:
 
@@ -68,37 +80,11 @@ def reply_main_choices(msg):
         
         if data["status"] == "OK":
             address = data["results"][0]["formatted_address"]
-            bot.reply_to(msg, "Confirma o endereço: %s?" % address, reply_markup=inline_replies) #TODO: tratar callbacks em uma func separada
+            bot.reply_to(msg, "Ótimo! Daqui alguns minutos seu pedido chegará até você no endereço %s \n\nObrigada por pedir conosco, até mais!" % address) 
+            bot.send_message(msg.chat.id, "Se quiser iniciar um pedido, digite /start")
             pass
         else:
-             bot.reply_to(msg, "Hmm peço desculpas, ocorreu um erro ao buscar o seu endereço.") #adicionar opção de inserir manualmente
-
-
-@bot.message_handler(content_types=['web_app_data'])
-def handle_web_app_data(msg):
-    
-    order = "<b>RESUMO DO PEDIDO</b>\n\n"
-    data = msg.web_app_data.data
-    pedidos = loads(data);
-    # total = sum(pedidos[""])
-    
-    for pedido in pedidos:
-        
-        qtd = pedido["quantidade"]
-        pizza = pedido["pizza"]
-        preco = pedido["preco"]   
-
-        order+= f"{qtd}x {pizza} {qtd}\n"
-        
-    # print(data)
-    # print(type(data))
-    # print(pedidos)
-    # print (type(pedidos))
-    print(data)
-    # bot.reply_to(msg, f"{order}", parse_mode=ParseMode.HTML)
-        
-##caption=f"<b>Sabor:</b>  {sabor}\n<b>Preço:</b> R${preco}", parse_mode=ParseMode.HTML
-        
-        
+            bot.reply_to(msg, "Hmm peço desculpas, ocorreu um erro ao buscar o seu endereço.")
+                 
         
 bot.polling()
